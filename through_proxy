@@ -1,0 +1,25 @@
+acl localnet src 0.0.0.0/0              # RFC 6598 shared address space (CGN)
+http_access allow localhost
+acl good url_regex *.com
+http_access allow good
+http_access allow all
+include /etc/squid/conf.d/*.conf
+http_port 3128
+coredump_dir /var/spool/squid
+refresh_pattern ^ftp:           1440    20%     10080
+refresh_pattern ^gopher:        1440    0%      1440
+refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
+refresh_pattern \/(Packages|Sources)(|\.bz2|\.gz|\.xz)$ 0 0% 0 refresh-ims
+refresh_pattern \/Release(|\.gpg)$ 0 0% 0 refresh-ims
+refresh_pattern \/InRelease$ 0 0% 0 refresh-ims
+refresh_pattern \/(Translation-.*)(|\.bz2|\.gz|\.xz)$ 0 0% 0 refresh-ims
+refresh_pattern .               0       20%     4320
+#cache_peer <forwarder proxy ipaddress>  parent <forwarder proxy port number>  0 no-query  default
+# the below config will forward the traffic from the client >> this proxy >> forwarder proxy  >> server 
+
+#client end exprt the proxy 
+#export http_proxy=<this proxy ipaddress>:3128 
+#export https_proxy=<this proxy ipaddress>:3128 
+
+cache_peer 3.2.xx.x76 parent 3128 0 no-query  default
+never_direct allow all
